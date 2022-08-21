@@ -1,49 +1,40 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const methodOverride = require('method-override');
 const ejs = require('ejs');
 const path = require('path');
-const Post = require('./models/Post');
+const postController = require('./controllers/postController');
+const pageController = require('./controllers/pageControllers');
+
 
 const app = express();
 
-mongoose.connect('mongodb://0.0.0.0:27017/clean-blog-db', { useNewUrlParser: true })
+mongoose
+    .connect('mongodb://0.0.0.0:27017/clean-blog-db', { 
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
     .then(() => console.log('Connected to MongoDB...'))
     .catch(err => console.error('Could not connect to MongoDB...', err));
 
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(methodOverride('_method', { methods: ['POST', 'GET'] }));
 
 app.set('view engine', 'ejs');
 
-app.get('/', async (req, res) => {
-    const posts = await Post.find({})
-    res.render('index', {
-        posts
-    });
-}
-);
-app.get('/about', (req, res) => {
-    res.render('about');
-}
-);
-app.get('/add', (req, res) => {
-    res.render('add_post');
-}
-);
+app.get('/', postController.getAllPosts);
+app.get('/posts/:id', postController.getPost);
+app.post('/posts', postController.addPost);
+app.put('/posts/:id', postController.updatePost);
+app.delete('/posts/:id', postController.deletePost);
 
-app.get('/posts/:id', async (req, res) => {
-    const post = await Post.findById(req.params.id);
-    res.render('post', {
-        post
-    });
-}
-);
+app.get('/about', pageController.getAboutPage);
+app.get('/add', pageController.getAddPostPage);
+app.get('/post/edit/:id', pageController.getEditPage);
 
-app.post('/posts', async (req, res) => {
-    await Post.create(req.body);
-    res.redirect('/');
-});
+
 
 const port = 3000;
 

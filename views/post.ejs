@@ -18,6 +18,11 @@
             <span class="meta">Posted by
               <a href="#"><%= post.name %></a>
               on <%= post.createdAt.toDateString() %></span>
+              <div class="row mt-5">
+
+                <a class="btn btn-primary mr-2" href="/post/edit/<%= post._id %>">Edit</a>
+                <a onclick="return confirm('Are you sure?')" class="btn btn-primary" href="/posts/<%= post._id %>?_method=DELETE">Delete</a>
+              </div>
           </div>
         </div>
       </div>
